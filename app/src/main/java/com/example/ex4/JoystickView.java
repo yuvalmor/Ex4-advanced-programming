@@ -5,19 +5,16 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 
 public class JoystickView extends View {
     private Paint background;
     private Paint circle;
     private Paint ellipse;
-    private int windowWidth;
-    private int windowHeight;
+    private Paint ellipseBorder;
 
     public JoystickView(Context context) {
         super(context);
@@ -30,8 +27,10 @@ public class JoystickView extends View {
         ellipse=new Paint(Paint.ANTI_ALIAS_FLAG);
         ellipse.setColor(Color.rgb(226,87,87));
         ellipse.setStyle(Paint.Style.FILL);
-        windowHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-        windowWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+        ellipseBorder=new Paint(Paint.ANTI_ALIAS_FLAG);
+        ellipseBorder.setColor(Color.BLACK);
+        ellipseBorder.setStyle(Paint.Style.STROKE);
+        ellipseBorder.setStrokeWidth(10);
     }
 
     @Override
@@ -43,8 +42,11 @@ public class JoystickView extends View {
         canvas.drawRect( metrics.xdpi-20*scale, metrics.ydpi-20*scale,
                 (metrics.xdpi+metrics.widthPixels)+20*scale,
                 metrics.ydpi+metrics.heightPixels, background);
-        RectF rectF = new RectF(metrics.xdpi,metrics.ydpi,
-                metrics.xdpi+metrics.widthPixels,metrics.ydpi+metrics.heightPixels);
-     canvas.drawOval(rectF,circle);
+        int width = this.getWidth();
+        int height = this.getHeight();
+        RectF rectF = new RectF((float)0.1*width,(float)0.1*height,(float)0.9*width,(float)0.9*height);
+        canvas.drawOval(rectF,ellipse);
+        canvas.drawOval(rectF,ellipseBorder);
+
     }
 }
