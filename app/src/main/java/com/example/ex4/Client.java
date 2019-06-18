@@ -2,19 +2,22 @@
 package com.example.ex4;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.Console;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
 
-
-public class Client extends AsyncTask<ClientParams, Void, String> {
+public class Client extends AsyncTask<ClientParams, Void, String> implements Serializable {
 
     // call CloseStream from onDestroy in JoystickActivity
     private PrintWriter buffer;
     private Socket socket;
+    private BufferedReader read;
 
     public Client() { }
 
@@ -35,6 +38,7 @@ public class Client extends AsyncTask<ClientParams, Void, String> {
                 InetAddress server = InetAddress.getByName(ip);
                 this.socket = new Socket(server, port);
                 buffer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+                read = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 System.out.println("we are ok :)))\n");
                 break;
             } catch (Exception e) {
@@ -52,24 +56,30 @@ public class Client extends AsyncTask<ClientParams, Void, String> {
         }
     }
 
-    public void writeToSimulator(String data, double value) {
+    public void writeToSimulator(String data, float value) {
         String command = getCommand(data, value);
 
-        // set data;
-        if (buffer != null && !buffer.checkError()) {
-            buffer.println(command);
-            buffer.flush();
+        try {
+            if (buffer != null && !buffer.checkError()) {
+                Log.d("send ", "send: " + command) ;
+                buffer.println(command);
+                String message = read.readLine();
+                Log.d("got: ", "got: " + message) ;
+                buffer.flush();
+            }
+        } catch (Exception e) {
+            Log.e("error: ", e.getMessage());
         }
     }
 
-    public String getCommand(String data, double value) {
+    public String getCommand(String data, float value) {
         String command = "set ";
         if (data.equals("aileron")) {
-            command += "/controls/flight/aileron";
+            command += "/controls/flight/aileron ";
         } else {
-            command += "/controls/flight/elevator";
+            command += "/controls/flight/elevator ";
         }
-        command += Double.toString(value);
+        command += Float.toString(value);
         command += "\r\n";
         return command;
     }

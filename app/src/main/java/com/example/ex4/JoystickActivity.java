@@ -2,16 +2,18 @@ package com.example.ex4;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
-public class JoystickActivity extends AppCompatActivity {
+public class JoystickActivity extends AppCompatActivity implements JoystickView.JoystickListener{
+    private Client client;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_joystick);
-       /* JoystickView jv = new JoystickView(this);
-        setContentView(jv);*/
        JoystickView joystickView = new JoystickView(this);
        setContentView(joystickView);
+       client =(Client)getIntent().getSerializableExtra("Client");
        // need to get the client...
     }
 
@@ -19,6 +21,21 @@ public class JoystickActivity extends AppCompatActivity {
     public void onDestroy(){
         super.onDestroy();
     }
+
+    @Override
+    public void onJoystickMoved(float x, float y,int source, float radius) {
+        Log.d("FIRST", "X: " + x
+                + " Y: " +y +"RADIUS:  "+ radius);
+        Log.d("JOYSTICK ACTIVITY", "X: " + normallizeValue(x,radius)
+                + " Y: " + normallizeValue(y,radius));
+        client.writeToSimulator("aileron",normallizeValue(x,radius));
+        client.writeToSimulator("elevator",normallizeValue(y,radius));
+    }
+
+    private float normallizeValue(float value, float radius) {
+        return value/radius;
+    }
+
+
+
 }
-
-

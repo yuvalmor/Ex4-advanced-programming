@@ -57,6 +57,10 @@ public class JoystickView extends SurfaceView implements View.OnTouchListener ,S
         super(context);
         getHolder().addCallback(this);
         setOnTouchListener(this);
+        // Global instance of JoystickListener
+        if(context instanceof JoystickListener){
+            joystickListener = (JoystickListener) context;
+        }
     }
     public JoystickView(Context context, AttributeSet attributeSet, int style){
         super(context,attributeSet,style);
@@ -91,16 +95,20 @@ public class JoystickView extends SurfaceView implements View.OnTouchListener ,S
                         Math.pow(event.getY() - centerY, 2));
                 if((displacement < baseRadius)) {
                     drawJoyStick(event.getX(),event.getY());
-
+                    joystickListener.onJoystickMoved((event.getX() - centerX),
+                            (event.getY() - centerY),getId(), baseRadius);
                 } else {
                     float ratio = baseRadius/displacement;
                     float constrainedX = centerX + (event.getX() - centerX)*ratio;
                     float constrainedY = centerY + (event.getY() - centerY)*ratio;
                     drawJoyStick(constrainedX,constrainedY);
+                    joystickListener.onJoystickMoved((constrainedX - centerX),
+                            (constrainedY-centerY),getId(),baseRadius);
                 }
             } else {
                 // Reset the Joystick to its center
                 drawJoyStick(centerX,centerY);
+                joystickListener.onJoystickMoved(0,0,getId(),baseRadius);
             }
         }
         return true;
@@ -109,6 +117,6 @@ public class JoystickView extends SurfaceView implements View.OnTouchListener ,S
     public interface JoystickListener
 
     {
-        void onJoystickMoved(float xPercent, float yPercent, int source);
+        void onJoystickMoved(float xPercent, float yPercent, int source, float radius);
     }
 }
