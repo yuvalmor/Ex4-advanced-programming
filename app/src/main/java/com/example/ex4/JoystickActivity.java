@@ -10,6 +10,7 @@ public class JoystickActivity extends AppCompatActivity implements JoystickView.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_joystick);
         JoystickView joystickView = new JoystickView(this);
         setContentView(joystickView);
@@ -32,8 +33,8 @@ public class JoystickActivity extends AppCompatActivity implements JoystickView.
         Log.d("JOYSTICK ACTIVITY", "X: " + normalizeValue(x,radius)
                 + " Y: " + normalizeValue(y,radius));
 
-        client.addDataToList("aileron",normalizeValue(x,radius));
-        client.addDataToList("elevator",normalizeValue(y,radius));
+        client.addDataToQueue("aileron",normalizeValue(x,radius));
+        client.addDataToQueue("elevator",normalizeValue(y,radius));
     }
     private float normalizeValue(float value, float radius) {
         return value/radius;

@@ -4,8 +4,7 @@ import java.io.DataOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Client extends AsyncTask<Void, Void, Void> implements Serializable {
 
@@ -13,7 +12,7 @@ public class Client extends AsyncTask<Void, Void, Void> implements Serializable 
     private DataOutputStream out;
     private Socket socket;
     private InetAddress server;
-    private List<String> data = new LinkedList<String>();
+    private LinkedBlockingQueue<String> data = new LinkedBlockingQueue<String>();
     private int port;
     private String ip;
     private boolean stop = false;
@@ -45,10 +44,9 @@ public class Client extends AsyncTask<Void, Void, Void> implements Serializable 
                         if (this.data.size() > 0) {
                             System.out.println("data not empty \r\n");
                             try {
-                                this.out.write(this.data.get(0).getBytes());
+                                this.out.write(this.data.take().getBytes());
                                 System.out.println("after writing\r\n");
                                 this.out.flush();
-                                this.data.remove(0);
                             } catch (Exception e) {
                                 System.out.println("error....\r\n");
                             }
@@ -62,6 +60,8 @@ public class Client extends AsyncTask<Void, Void, Void> implements Serializable 
         } catch (Exception e) {
             System.out.println("error..\r\n");
         }
+
+        System.out.println("finished loop\r\n");
         return null;
     }
 
@@ -72,13 +72,20 @@ public class Client extends AsyncTask<Void, Void, Void> implements Serializable 
             this.socket.close();
         } catch (Exception e) {
             System.out.println("error.\r\n");
+
         }
+        System.out.println("program closed\r\n");
     }
 
-    public void addDataToList(String data, double value) {
-        this.data.add(getCommand(data, value));
-        int size = this.data.size();
-        System.out.println("data is added to list" + size+ "\r\n");
+    public void addDataToQueue(String data, double value) {
+
+        try {
+            this.data.put(getCommand(data, value));
+            int size = this.data.size();
+            System.out.println("data is added to list" + size+ "\r\n");
+        } catch (Exception e) {
+            System.out.println("error.\r\n");
+        }
     }
 
     public String getCommand(String data, double value) {

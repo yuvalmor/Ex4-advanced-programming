@@ -22,7 +22,7 @@ public class JoystickView extends SurfaceView implements View.OnTouchListener ,S
     private float hatRadius;
     private JoystickListener joystickListener;
 
-    private void setDimensions(){
+    public void setDimensions(){
         centerX = (float)getWidth()/2;
         centerY = (float)getHeight()/2;
         baseRadius = (float)Math.min(getWidth(),getHeight())/3;
@@ -81,6 +81,8 @@ public class JoystickView extends SurfaceView implements View.OnTouchListener ,S
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        setDimensions();
+        drawJoyStick(centerX,centerY);
     }
 
     @Override
@@ -113,6 +115,18 @@ public class JoystickView extends SurfaceView implements View.OnTouchListener ,S
             }
         }
         return true;
+    }
+
+    @Override
+    public void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w,h,oldw,oldh);
+        setNewScreen();
+    }
+
+    public void setNewScreen() {
+        setDimensions();
+    //    this.invalidate();
+        drawJoyStick(centerX,centerY);
     }
 
     public interface JoystickListener
