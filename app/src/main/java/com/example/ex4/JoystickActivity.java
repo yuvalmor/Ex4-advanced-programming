@@ -6,7 +6,6 @@ import android.util.Log;
 
 public class JoystickActivity extends AppCompatActivity implements JoystickView.JoystickListener{
     private Client client;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,14 +27,12 @@ public class JoystickActivity extends AppCompatActivity implements JoystickView.
                 + " Y: " +y +"RADIUS:  "+ radius);
         Log.d("JOYSTICK ACTIVITY", "X: " + normallizeValue(x,radius)
                 + " Y: " + normallizeValue(y,radius));
+
         client.writeToSimulator("aileron",normallizeValue(x,radius));
         client.writeToSimulator("elevator",normallizeValue(y,radius));
-    }
 
+    }
     private float normallizeValue(float value, float radius) {
         return value/radius;
     }
-
-
-
 }

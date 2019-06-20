@@ -95,6 +95,7 @@ public class JoystickView extends SurfaceView implements View.OnTouchListener ,S
                         Math.pow(event.getY() - centerY, 2));
                 if((displacement < baseRadius)) {
                     drawJoyStick(event.getX(),event.getY());
+
                     joystickListener.onJoystickMoved((event.getX() - centerX),
                             (event.getY() - centerY),getId(), baseRadius);
                 } else {
