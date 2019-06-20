@@ -116,7 +116,6 @@ public class JoystickView extends SurfaceView implements View.OnTouchListener ,S
     }
 
     public interface JoystickListener
-
     {
         void onJoystickMoved(float xPercent, float yPercent, int source, float radius);
     }

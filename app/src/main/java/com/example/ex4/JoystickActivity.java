@@ -10,10 +10,9 @@ public class JoystickActivity extends AppCompatActivity implements JoystickView.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_joystick);
-       JoystickView joystickView = new JoystickView(this);
-       setContentView(joystickView);
-       client =(Client)getIntent().getSerializableExtra("Client");
-       // need to get the client...
+        JoystickView joystickView = new JoystickView(this);
+        setContentView(joystickView);
+        client =(Client)getIntent().getSerializableExtra("Client");
     }
 
     @Override
@@ -27,9 +26,8 @@ public class JoystickActivity extends AppCompatActivity implements JoystickView.
                 + " Y: " +y +"RADIUS:  "+ radius);
         Log.d("JOYSTICK ACTIVITY", "X: " + normallizeValue(x,radius)
                 + " Y: " + normallizeValue(y,radius));
-
-        client.writeToSimulator("aileron",normallizeValue(x,radius));
-        client.writeToSimulator("elevator",normallizeValue(y,radius));
+        client.addDataToList("aileron",normallizeValue(x,radius));
+        client.addDataToList("elevator",normallizeValue(y,radius));
 
     }
     private float normallizeValue(float value, float radius) {

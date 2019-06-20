@@ -1,5 +1,4 @@
 package com.example.ex4;
-
 import android.os.AsyncTask;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,58 +10,69 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.List;
 
-public class Client extends AsyncTask<ClientParams, Void, String> implements Serializable {
+public class Client extends AsyncTask<Void, Void, String> implements Serializable {
 
     // call CloseStream from onDestroy in JoystickActivity
     private DataOutputStream out;
-    //private BufferedReader in;
     private Socket socket;
-    private BufferedReader read;
-    private String command;
-    private String ip;
-    private int port;
     private InetAddress server;
 
-    public Client() { }
+    private List<String> data;
+    private int port;
+    private String ip;
+    private boolean stop = false;
 
-    @Override
-    public String doInBackground(ClientParams...params) {
-        String ip = params[0].getIP();
-        int port = params[0].getPort();
+    public Client(String ip, int port) {
         this.ip = ip;
         this.port = port;
-        connect(ip,port);
+        this.data = new LinkedList<String>();
+    }
+
+    @Override
+    public String doInBackground(Void...params) {
+
+        try {
+            this.server = InetAddress.getByName(this.ip);
+            System.out.println("server is set\r\n");
+            try {
+                this.socket = new Socket(this.server, this.port);
+                System.out.println("socket is set\r\n");
+                this.out = new DataOutputStream(this.socket.getOutputStream());
+                System.out.println("out is set\r\n");
+
+                while (!stop) {
+                    System.out.println("try to write..\r\n");
+                    if ((this.out != null)) {
+                        System.out.println("out not null..\r\n");
+                        if (!(this.data.isEmpty())) {
+                            System.out.println("data not empty \r\n");
+                            try {
+                                this.out.write(this.data.get(0).getBytes());
+                                System.out.println("after writing\r\n");
+                                this.out.flush();
+                                this.data.remove(0);
+                            } catch (Exception e) {
+                                System.out.println("error....\r\n");
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("error..\r\n");
+            }
+
+        } catch (Exception e) {
+            System.out.println("error..\r\n");
+        }
+
         return "success";
     }
 
-    public void connect(String ip, int port) {
-        System.out.println("begin connection..\r\n");
-        while (true) {
-            try {
-                server = InetAddress.getByName(ip);
-
-                this.socket = new Socket(server, port);
-                try {
-                    out = new DataOutputStream(this.socket.getOutputStream());
-                    System.out.println("got outputstream\r\n");
-                } catch (Exception e) {
-                    System.out.println("error.\r\n");
-                }
-                finally {
-                    socket.close();
-                }
-
-                System.out.println("after socket..\r\n");
-                break;
-
-            } catch (Exception e) {
-                System.out.println("error.\r\n");
-            }
-        }
-    }
-
     public void closeStream() {
+        this.stop = true;
         try {
             this.out.close();
             this.socket.close();
@@ -71,84 +81,14 @@ public class Client extends AsyncTask<ClientParams, Void, String> implements Ser
         }
     }
 
-    public void writeToSimulator(String data, double value) {
-
-        System.out.println("begin write..\r\n");
-        getCommand(data, value);
-        System.out.println("line is.." + "\r\n"+ command+"\r\n");
-        String message="";
-        byte[] bytes = command.getBytes();
-        System.out.println("got command in bytes\r\n");
-        /*
-        try {
-            out = new DataOutputStream(this.socket.getOutputStream());
-            System.out.println("got outputstream\r\n");
-        } catch (Exception e) {
-            System.out.println("error.\r\n");
-        }*/
-
-        while (true) {
-            try {
-                this.socket = new Socket(server, this.port);
-                try {
-                    out = new DataOutputStream(this.socket.getOutputStream());
-                    System.out.println("got outputstream\r\n");
-
-                    if (this.out != null) {
-                        try {
-                            this.out.write(bytes);
-                            System.out.println("wrote bytes...\r\n");
-                            this.out.flush();
-                        } catch (Exception e) {
-                            System.out.println("error.\r\n");
-                        }
-
-                        System.out.println("go to read..\r\n");
-                        //message = readFromSimulator();
-                    }
-
-                } catch (Exception e) {
-                    System.out.println("error.\r\n");
-                }
-                finally {
-                    socket.close();
-                }
-
-                System.out.println("after socket..\r\n");
-                break;
-
-            } catch (Exception e) {
-                System.out.println("error.\r\n");
-            }
-        }
-
-
-
-        System.out.println("wrote.." + message + "\r\n");
-        //return message;
-        command="";
+    public void addDataToList(String data, double value) {
+        this.data.add(getCommand(data, value));
+        System.out.println("data is added to list\r\n");
     }
 
-/*
-    public String readFromSimulator() {
-        String message="";
-        System.out.println("begin read..\r\n");
-        try {
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            char[] buffer = new char[200];
-            in.read(buffer,0, buffer.length);
-            message = new String(buffer);
-            System.out.println("after read.." + message +"\r\n");
-
-        }catch (Exception e) {
-            System.out.println("error.\r\n");
-        }
-        return message;
-    }
-*/
-
-    public void getCommand(String data, double value) {
-         command = "set ";
+    public String getCommand(String data, double value) {
+        String command = "";
+        command += "set ";
         if (data.equals("aileron")) {
             command += "/controls/flight/aileron ";
         } else {
@@ -156,25 +96,25 @@ public class Client extends AsyncTask<ClientParams, Void, String> implements Ser
         }
         command += Double.toString(value);
         command += "\r\n";
+        return command;
     }
 }
 
-class ClientParams {
+class DataParams {
 
-    private String ip;
-    private int port;
+    private String type;
+    private double value;
 
-    ClientParams(String ip, int port) {
-        this.ip=ip;
-        this.port=port;
+    DataParams(String type, double value) {
+        this.type = type;
+        this.value = value;
     }
 
-    public String getIP() {
-        return this.ip;
+    public String getType() {
+        return this.type;
     }
 
-    public int getPort(){
-        return this.port;
+    public double getValue(){
+        return this.value;
     }
 }
-
