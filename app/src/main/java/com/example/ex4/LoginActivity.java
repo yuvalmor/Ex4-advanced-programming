@@ -15,13 +15,11 @@ public class LoginActivity extends AppCompatActivity {
 
     public void ToJoystickActivity(View view){
         String ip = ((EditText)findViewById(R.id.ipTxt)).getText().toString();
-        int port = Integer.parseInt(((EditText)findViewById(R.id.portTxt)).getText().toString());
-
-        ClientParams params = new ClientParams(ip,port);
-        Client client = new Client();
-        client.execute(params);
+        String port = ((EditText)findViewById(R.id.portTxt)).getText().toString();
+        System.out.println("try to make a client\r\n");
         Intent intent = new Intent(this,JoystickActivity.class);
-        intent.putExtra("Client",client);
+        intent.putExtra("ip", ip);
+        intent.putExtra("port", port);
         startActivity(intent);
     }
 }
