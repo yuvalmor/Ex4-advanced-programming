@@ -12,7 +12,7 @@ public class JoystickActivity extends AppCompatActivity implements JoystickView.
      * Function Operation: sets the activity on and sets the client
      * member with ip and port given from the login activity, then
      * calls connection method.
-     * @param savedInstanceState
+     * @param savedInstanceState - save the current state
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +37,10 @@ public class JoystickActivity extends AppCompatActivity implements JoystickView.
         this.client.closeStream();
     }
 
-
-    // adding normalized valued parameters the client queue
-    // we multiply elevator by -1 to adjust to screen axis.
+    /*
+    adding normalized valued parameters the client queue
+    we multiply elevator by -1 to adjust to screen axis.
+     */
     @Override
     public void onJoystickMoved(float x, float y,int source, float radius) {
         client.addDataToQueue("aileron",normalizeX(x,radius));

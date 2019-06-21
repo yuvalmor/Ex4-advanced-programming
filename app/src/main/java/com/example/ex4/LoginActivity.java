@@ -7,11 +7,10 @@ import android.view.View;
 import android.widget.EditText;
 
 public class LoginActivity extends AppCompatActivity {
-
     /**
      * Function Name: onCreate
      * Function Operation: sets the login activity on.
-     * @param savedInstanceState
+     * @param savedInstanceState - save the current state.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +20,7 @@ public class LoginActivity extends AppCompatActivity {
 
     /**
      * Function Name: ToJoystickActivity
-     * Funtion Operation: get the ip,port values from the user
+     * Function Operation: get the ip,port values from the user
      * and pass to the Joystick activity and call the Joystick activity
      * onCreate method.
      * @param view JoystickView

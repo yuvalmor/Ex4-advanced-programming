@@ -8,7 +8,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 // Async class - using doInBackground method
 public class Client extends AsyncTask<Void, Void, Void> implements Serializable {
-
     // members
     // connection fields
     private DataOutputStream out;
@@ -18,7 +17,6 @@ public class Client extends AsyncTask<Void, Void, Void> implements Serializable 
     private String ip;
     // holds the commands waiting to be sent to the server
     private LinkedBlockingQueue<String> data = new LinkedBlockingQueue<String>();
-
     private boolean stop = false;
 
     // default ctor
@@ -40,7 +38,6 @@ public class Client extends AsyncTask<Void, Void, Void> implements Serializable 
      */
     @Override
     public Void doInBackground(Void...params) {
-
         try {
             this.server = InetAddress.getByName(this.ip);
             try {
@@ -79,7 +76,6 @@ public class Client extends AsyncTask<Void, Void, Void> implements Serializable 
             this.socket.close();
         } catch (Exception e) {
             System.out.println("error.\r\n");
-
         }
     }
 
@@ -90,7 +86,6 @@ public class Client extends AsyncTask<Void, Void, Void> implements Serializable 
      * @param value double
      */
     public void addDataToQueue(String data, double value) {
-
         try {
             this.data.put(getCommand(data, value));
         } catch (Exception e) {
