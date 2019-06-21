@@ -1,38 +1,33 @@
 package com.example.ex4;
 import android.os.AsyncTask;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.DataOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class Client extends AsyncTask<Void, Void, String> implements Serializable {
+public class Client extends AsyncTask<Void, Void, Void> implements Serializable {
 
     // call CloseStream from onDestroy in JoystickActivity
     private DataOutputStream out;
     private Socket socket;
     private InetAddress server;
-
-    private List<String> data;
+    private LinkedBlockingQueue<String> data = new LinkedBlockingQueue<>();
     private int port;
     private String ip;
     private boolean stop = false;
 
-    public Client(String ip, int port) {
+    public Client() {}
+
+    public void setClient(String ip, int port) {
         this.ip = ip;
         this.port = port;
-        this.data = new LinkedList<String>();
     }
 
     @Override
-    public String doInBackground(Void...params) {
+    public Void doInBackground(Void...params) {
 
         try {
             this.server = InetAddress.getByName(this.ip);
@@ -47,13 +42,13 @@ public class Client extends AsyncTask<Void, Void, String> implements Serializabl
                     System.out.println("try to write..\r\n");
                     if ((this.out != null)) {
                         System.out.println("out not null..\r\n");
-                        if (!(this.data.isEmpty())) {
+                        System.out.println("data size" + this.data.size() +"\r\n");
+                        if (this.data.size() > 0) {
                             System.out.println("data not empty \r\n");
                             try {
-                                this.out.write(this.data.get(0).getBytes());
+                                this.out.write(this.data.take().getBytes());
                                 System.out.println("after writing\r\n");
                                 this.out.flush();
-                                this.data.remove(0);
                             } catch (Exception e) {
                                 System.out.println("error....\r\n");
                             }
@@ -67,8 +62,7 @@ public class Client extends AsyncTask<Void, Void, String> implements Serializabl
         } catch (Exception e) {
             System.out.println("error..\r\n");
         }
-
-        return "success";
+        return null;
     }
 
     public void closeStream() {
@@ -81,9 +75,14 @@ public class Client extends AsyncTask<Void, Void, String> implements Serializabl
         }
     }
 
-    public void addDataToList(String data, double value) {
-        this.data.add(getCommand(data, value));
-        System.out.println("data is added to list\r\n");
+    public void addDataToQueue(String data, double value) {
+        try {
+            this.data.put(getCommand(data, value));
+            int size = this.data.size();
+            System.out.println("data is added to list" + size+ "\r\n");
+        } catch (Exception e) {
+            System.out.println("error.\r\n");
+        }
     }
 
     public String getCommand(String data, double value) {
@@ -97,24 +96,5 @@ public class Client extends AsyncTask<Void, Void, String> implements Serializabl
         command += Double.toString(value);
         command += "\r\n";
         return command;
-    }
-}
-
-class DataParams {
-
-    private String type;
-    private double value;
-
-    DataParams(String type, double value) {
-        this.type = type;
-        this.value = value;
-    }
-
-    public String getType() {
-        return this.type;
-    }
-
-    public double getValue(){
-        return this.value;
     }
 }

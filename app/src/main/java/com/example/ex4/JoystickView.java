@@ -1,19 +1,17 @@
 package com.example.ex4;
 
 import android.content.Context;
-import android.content.res.Resources;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.WindowManager;
 
 public class JoystickView extends SurfaceView implements View.OnTouchListener ,SurfaceHolder.Callback {
     private float centerX;
@@ -22,7 +20,7 @@ public class JoystickView extends SurfaceView implements View.OnTouchListener ,S
     private float hatRadius;
     private JoystickListener joystickListener;
 
-    private void setDimensions(){
+    public void setDimensions(){
         centerX = (float)getWidth()/2;
         centerY = (float)getHeight()/2;
         baseRadius = (float)Math.min(getWidth(),getHeight())/3;
@@ -113,6 +111,14 @@ public class JoystickView extends SurfaceView implements View.OnTouchListener ,S
             }
         }
         return true;
+    }
+
+    @Override
+    public void onSizeChanged(int w, int h, int oldw, int oldh){
+        setDimensions();
+        drawJoyStick(centerX,centerY);
+        this.invalidate();
+        //super.onSizeChanged(w,h,oldw,oldh);
     }
 
     public interface JoystickListener
