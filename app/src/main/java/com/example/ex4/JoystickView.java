@@ -79,8 +79,19 @@ public class JoystickView extends SurfaceView implements View.OnTouchListener ,S
         drawJoyStick(centerX,centerY);
     }
 
+    /*
+    * next to functions make sure that orientation changes to not affect the
+    * appearance of the screen by redrawing it based on new dimensions values.
+     */
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        setDimensions();
+        drawJoyStick(centerX,centerY);
+    }
+
+    @Override
+    public void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w,h,oldw,oldh);
         setDimensions();
         drawJoyStick(centerX,centerY);
     }
@@ -117,17 +128,6 @@ public class JoystickView extends SurfaceView implements View.OnTouchListener ,S
         return true;
     }
 
-    @Override
-    public void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w,h,oldw,oldh);
-        setNewScreen();
-    }
-
-    public void setNewScreen() {
-        setDimensions();
-    //    this.invalidate();
-        drawJoyStick(centerX,centerY);
-    }
 
     public interface JoystickListener
 
