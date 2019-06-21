@@ -4,55 +4,57 @@ import java.io.DataOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
+// Async class - using doInBackground method
 public class Client extends AsyncTask<Void, Void, Void> implements Serializable {
 
-    // call CloseStream from onDestroy in JoystickActivity
+    // members
+    // connection fields
     private DataOutputStream out;
     private Socket socket;
     private InetAddress server;
-    private LinkedBlockingQueue<String> data = new LinkedBlockingQueue<>();
     private int port;
     private String ip;
+    // holds the commands waiting to be sent to the server
+    private LinkedBlockingQueue<String> data = new LinkedBlockingQueue<String>();
+
     private boolean stop = false;
 
+    // default ctor
     public Client() {}
 
+    // setter
     public void setClient(String ip, int port) {
         this.ip = ip;
         this.port = port;
     }
 
+    /**
+     * Function Name: doInBackground
+     * Function Operation: connect to server via tcp
+     * connection and run a while loop in which it writes
+     * a string of command to the server from our queue.
+     * @param params non
+     * @return void
+     */
     @Override
     public Void doInBackground(Void...params) {
 
         try {
             this.server = InetAddress.getByName(this.ip);
-            System.out.println("server is set\r\n");
             try {
                 this.socket = new Socket(this.server, this.port);
-                System.out.println("socket is set\r\n");
                 this.out = new DataOutputStream(this.socket.getOutputStream());
-                System.out.println("out is set\r\n");
-
                 while (!stop) {
-                    System.out.println("try to write..\r\n");
-                    if ((this.out != null)) {
-                        System.out.println("out not null..\r\n");
-                        System.out.println("data size" + this.data.size() +"\r\n");
-                        if (this.data.size() > 0) {
-                            System.out.println("data not empty \r\n");
-                            try {
-                                this.out.write(this.data.take().getBytes());
-                                System.out.println("after writing\r\n");
-                                this.out.flush();
-                            } catch (Exception e) {
-                                System.out.println("error....\r\n");
-                            }
+                    if ((this.out != null) && (this.data.size() > 0)) {
+                        try {
+                            this.out.write(this.data.take().getBytes());
+                            this.out.flush();
+                        } catch (Exception e) {
+                            System.out.println("error....\r\n");
                         }
+
                     }
                 }
             } catch (Exception e) {
@@ -65,6 +67,11 @@ public class Client extends AsyncTask<Void, Void, Void> implements Serializable 
         return null;
     }
 
+    /**
+     * Function Name: closeStream.
+     * Function Operation: changes 'stop' flag to true so the doInBackground
+     * method will stop and closes the stream.
+     */
     public void closeStream() {
         this.stop = true;
         try {
@@ -72,18 +79,33 @@ public class Client extends AsyncTask<Void, Void, Void> implements Serializable 
             this.socket.close();
         } catch (Exception e) {
             System.out.println("error.\r\n");
+
         }
     }
 
+    /**
+     * Function Name: addDataToQueue.
+     * Function Operation: add command to the queue member.
+     * @param data field name
+     * @param value double
+     */
     public void addDataToQueue(String data, double value) {
+
         try {
             this.data.put(getCommand(data, value));
-            int size = this.data.size();
-            System.out.println("data is added to list" + size+ "\r\n");
         } catch (Exception e) {
             System.out.println("error.\r\n");
         }
     }
+
+    /**
+     * Function Name: getCommand
+     * Function Operation: creating the string in the structure
+     * that the simulator knows based on the parameter and value.
+     * @param data parameter
+     * @param value value
+     * @return
+     */
 
     public String getCommand(String data, double value) {
         String command = "";

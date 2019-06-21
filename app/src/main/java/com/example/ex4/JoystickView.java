@@ -1,17 +1,19 @@
 package com.example.ex4;
 
 import android.content.Context;
-import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.util.Log;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.WindowManager;
 
 public class JoystickView extends SurfaceView implements View.OnTouchListener ,SurfaceHolder.Callback {
     private float centerX;
@@ -77,8 +79,21 @@ public class JoystickView extends SurfaceView implements View.OnTouchListener ,S
         drawJoyStick(centerX,centerY);
     }
 
+    /*
+    * next to functions make sure that orientation changes to not affect the
+    * appearance of the screen by redrawing it based on new dimensions values.
+     */
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        setDimensions();
+        drawJoyStick(centerX,centerY);
+    }
+
+    @Override
+    public void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w,h,oldw,oldh);
+        setDimensions();
+        drawJoyStick(centerX,centerY);
     }
 
     @Override
@@ -113,15 +128,9 @@ public class JoystickView extends SurfaceView implements View.OnTouchListener ,S
         return true;
     }
 
-    @Override
-    public void onSizeChanged(int w, int h, int oldw, int oldh){
-        setDimensions();
-        drawJoyStick(centerX,centerY);
-        this.invalidate();
-        //super.onSizeChanged(w,h,oldw,oldh);
-    }
 
     public interface JoystickListener
+
     {
         void onJoystickMoved(float xPercent, float yPercent, int source, float radius);
     }
